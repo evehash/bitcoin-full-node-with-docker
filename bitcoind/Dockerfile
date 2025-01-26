@@ -1,7 +1,7 @@
 FROM debian:stable-slim AS build
 ARG BITCOIN_VERSION
 RUN apt-get update \
-  && apt-get install automake autotools-dev bsdmainutils build-essential curl git libtool pkg-config -y \
+  && apt-get install automake autotools-dev bsdmainutils build-essential cmake curl git libtool pkg-config -y \
   && cd /tmp \
   && curl \
     -O https://raw.githubusercontent.com/bitcoin-core/guix.sigs/main/builder-keys/achow101.gpg \
@@ -32,7 +32,7 @@ RUN apt-get update \
     --without-utils \
   && make \
   && gzexe src/bitcoind \
-  && apt-get remove automake autotools-dev bsdmainutils build-essential curl git libtool pkg-config -y
+  && apt-get remove automake autotools-dev bsdmainutils build-essential cmake curl git libtool pkg-config -y
 
 
 FROM debian:stable-slim
