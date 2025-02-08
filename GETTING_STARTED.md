@@ -12,6 +12,7 @@
 - <a href="#using-your-node">Using your node</a>
 - <a href="#post-installation">Post-installation</a>
 - <a href="#remote-access-to-your-node-via-tor-optional">Remote access to your node via tor (Optional)</a>
+- <a href="#add-i2p-as-an-additional-network-optional">Add i2p as an additional network (Optional)</a>
 
 ## Prerequisites
 
@@ -121,6 +122,8 @@ $ docker logs -f 06a96296854a
 # [notice] Bootstrapped 95% (circuit_create): Establishing a Tor circuit
 # [notice] Bootstrapped 100% (done): Done
 ```
+
+
 
 ### bitcoind
 
@@ -317,3 +320,26 @@ $ cat btc-rpc-explorer/hostname
 ```
 
 To revert this configuration, comment the lines again, and restart tor.
+
+## Add i2p as an additional network (Optional)
+
+I2P (Invisible Internet Project) is a decentralized network designed for anonymous communication, complementing Tor by offering additional censorship resistance protection. Combining I2P with Tor in a Bitcoin node enhances privacy, decentralization, and connectivity to privacy-focused peers while mitigating Eclipse attacks, as the node does not connect to the clearnet by default, making isolation by malicious actors significantly harder.
+
+I2P adds extra complexity to node setup and is disabled by default, allowing advanced users to enable it if needed.
+
+If you want to enable it, uncomment the following lines in the I2P service of the `docker-compose` file.
+
+```conf
+profiles:
+  - disabled
+```
+
+When the service is up and running, follow these steps:
+
+ - Open the web page: http://your_node_ip:7657 and follow the wizard (just click "Next" for all steps, using the default settings).
+ - Go to the Client tab.
+ - Enable Run at Startup? for the SAMBridge client and save.
+ - Click "Start" for the SAMBridge to activate it immediately.
+ - After the SAMBridge starts, ensure the configuration is properly saved and the service is running.
+
+Finally, edit the bitcoin.conf file, uncomment the lines related to I2P, and restart the node.
