@@ -9,7 +9,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Build images
+      - name: Build default images
         run: docker compose --env-file .env.example build
+      - name: Build optional images
+        run: docker compose --env-file .env.example --profile disabled build
       - name: List images
         run: docker images
