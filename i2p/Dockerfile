@@ -1,7 +1,6 @@
-FROM debian:stable-slim AS build
+FROM alpine:latest AS build
 ARG I2P_VERSION
-RUN apt-get update \
-  && apt-get install ant bzip2 gettext gpg wget -y \
+RUN apk add --update --no-cache apache-ant bzip2 gettext gpg gpg-agent wget \
   && cd /opt \
   && wget https://github.com/i2p/i2p.i2p/releases/download/i2p-${I2P_VERSION}/i2psource_${I2P_VERSION}.tar.bz2 \
   && wget https://github.com/i2p/i2p.i2p/releases/download/i2p-${I2P_VERSION}/i2psource_${I2P_VERSION}.tar.bz2.sig \
@@ -10,22 +9,20 @@ RUN apt-get update \
   && tar -xvf i2psource_${I2P_VERSION}.tar.bz2 \
   && cd i2p-${I2P_VERSION} \
   && ant preppkg-linux-only \
-  && rm -rf pkg-temp/osid pkg-temp/lib/wrapper pkg-temp/lib/wrapper.*
+  && apk del apache-ant bzip2 gettext gpg gpg-agent wget
 
 
-FROM debian:stable-slim
+FROM alpine:latest
 ARG I2P_USER_ID
 ARG I2P_VERSION
 ARG GROUP_ID
 COPY --from=build /opt/i2p-${I2P_VERSION}/pkg-temp /i2p
 COPY --from=build /opt/i2p-${I2P_VERSION}/docker/rootfs/ /
-RUN apt-get update \
-  && apt-get install openjdk-17-jre -y \
-  && rm -rf /var/lib/apt/lists/* \
+RUN apk add --update --no-cache openjdk17-jre-headless \
   && addgroup --gid ${GROUP_ID} i2p \
   && adduser -u ${I2P_USER_ID} --disabled-password --gecos "" --ingroup i2p i2p \
   && chmod +x /startapp.sh
 
-USER root
+USER i2p
 
 CMD /startapp.sh
