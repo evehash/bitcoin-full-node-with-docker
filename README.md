@@ -35,7 +35,7 @@ The following services are deployed:
 | <a href="https://github.com/romanz/electrs">Electrs</a>                         | 0.10.8       | debian:stable-slim | 80.7 MB |
 | <a href="https://github.com/janoside/btc-rpc-explorer">Bitcoin RPC Explorer</a> | 3.4.0        | node:22-slim       | 377 MB  |
 | <a href="https://github.com/nginxinc/docker-nginx">NGINX</a>                    | stable-slim  | nginx:alpine-slim  | 11.5 MB |
-| <a href="https://github.com/i2p/i2p.i2p">i2p</a> (optional)                     | 2.7.0        | debian:stable-slim | 222 MB  |
+| <a href="https://github.com/i2p/i2p.i2p">i2p</a> (optional)                     | 2.7.0        | alpine:latest      | 222 MB  |
 
 ## Documentation
 
