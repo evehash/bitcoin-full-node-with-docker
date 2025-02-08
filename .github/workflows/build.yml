@@ -11,7 +11,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Build default images
         run: docker compose --env-file .env.example build
-      - name: Build optional images
+      - name: Build disabled images
         run: docker compose --env-file .env.example --profile disabled build
       - name: List images
         run: docker images
