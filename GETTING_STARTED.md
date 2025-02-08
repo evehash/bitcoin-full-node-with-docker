@@ -330,8 +330,8 @@ I2P adds extra complexity to node setup and is disabled by default, allowing adv
 If you want to enable it, uncomment the following lines in the I2P service of the `docker-compose` file.
 
 ```conf
-    profiles:
-      - disabled
+profiles:
+  - disabled
 ```
 
 When the service is up and running, follow these steps:
