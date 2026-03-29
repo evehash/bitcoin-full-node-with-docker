@@ -9,7 +9,12 @@ services:
         - GROUP_ID=$SHARED_GID
     volumes:
       - $TOR_DATA:/home/tor
-    restart: on-failure
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "tor", "--verify-config", "-f", "/home/tor/torrc.default"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     networks:
       default:
         ipv4_address: 172.18.0.2
@@ -33,12 +38,13 @@ services:
     networks:
       default:
         ipv4_address: 172.18.0.3
-  bitcoind:
-    image: bitcoind:$BITCOIN_VERSION
-    depends_on:
-      - tor
+  bitcoin:
+    image: bitcoin:$BITCOIN_VERSION
+    #depends_on:
+    #  tor:
+    #    condition: service_healthy
     build:
-      context: ./bitcoind
+      context: ./bitcoin
       args:
         - BITCOIN_VERSION=$BITCOIN_VERSION
         - BITCOIN_USER_ID=$BITCOIN_USER_ID
@@ -51,8 +57,8 @@ services:
         ipv4_address: 172.18.0.4
   electrs:
     image: electrs:$ELECTRS_VERSION
-    depends_on:
-      - bitcoind
+    #depends_on:
+    #  - bitcoin
     build:
       context: ./electrs
       args:
@@ -69,7 +75,7 @@ services:
   btcrpcexplorer:
     image: btcrpcexplorer:$BTC_RPC_EXPLORER_VERSION
     depends_on:
-      - bitcoind
+      - bitcoin
       - electrs
     build:
       context: ./btcrpcexplorer
