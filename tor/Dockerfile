@@ -1,7 +1,7 @@
 FROM debian:stable-slim AS build
 ARG TOR_VERSION
 RUN apt-get update \
-  && apt-get install --no-install-recommends -y build-essential autoconf automake gpg libevent-dev libssl-dev libzstd-dev zlib1g-dev git ca-certificates wget \
+  && apt-get install --no-install-recommends -y autoconf automake build-essential ca-certificates gpg gpg-agent libevent-dev libssl-dev libzstd-dev zlib1g-dev git wget \
   && mkdir /tmp/gpg-keys && cd /tmp/gpg-keys \
   # One or many of these keys can sign the releases. Verificable in https://gitlab.torproject.org/dgoulet/tor
   && wget https://keys.openpgp.org/vks/v1/by-fingerprint/1C1BC007A9F607AA8152C040BEA7B180B1491921 -O key1.gpg \
