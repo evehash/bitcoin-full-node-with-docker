@@ -1,12 +1,12 @@
 FROM debian:stable-slim AS build
 ARG TOR_VERSION
 RUN apt-get update \
-  && apt-get install --no-install-recommends -y autoconf automake build-essential ca-certificates gpg gpg-agent libevent-dev libssl-dev libzstd-dev zlib1g-dev git wget \
+  && apt-get install --no-install-recommends -y autoconf automake build-essential ca-certificates curl git gpg gpg-agent libevent-dev libssl-dev libzstd-dev zlib1g-dev \
   && mkdir /tmp/gpg-keys && cd /tmp/gpg-keys \
   # One or many of these keys can sign the releases. Verificable in https://gitlab.torproject.org/dgoulet/tor
-  && wget https://keys.openpgp.org/vks/v1/by-fingerprint/1C1BC007A9F607AA8152C040BEA7B180B1491921 -O key1.gpg \
-  && wget https://keys.openpgp.org/vks/v1/by-fingerprint/B74417EDDF22AC9F9E90F49142E86A2A11F48D36 -O key2.gpg \
-  && wget https://keys.openpgp.org/vks/v1/by-fingerprint/2133BC600AB133E1D826D173FE43009C4607B1FB -O key3.gpg \
+  && curl -fsSL https://keys.openpgp.org/vks/v1/by-fingerprint/1C1BC007A9F607AA8152C040BEA7B180B1491921 > key1.gpg \
+  && curl -fsSL https://keys.openpgp.org/vks/v1/by-fingerprint/B74417EDDF22AC9F9E90F49142E86A2A11F48D36 > key2.gpg \
+  && curl -fsSL https://keys.openpgp.org/vks/v1/by-fingerprint/2133BC600AB133E1D826D173FE43009C4607B1FB > key3.gpg \
   && gpg --import key1.gpg key2.gpg key3.gpg \
   && cd /tmp \
   && git clone -b tor-${TOR_VERSION} https://git.torproject.org/tor.git \

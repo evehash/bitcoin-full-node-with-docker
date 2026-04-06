@@ -1,4 +1,4 @@
-FROM alpine:latest AS build
+FROM alpine:stable-slim AS build
 ARG I2P_VERSION
 RUN apk add --update --no-cache apache-ant bzip2 gettext gpg gpg-agent wget \
   && cd /opt \
@@ -8,11 +8,10 @@ RUN apk add --update --no-cache apache-ant bzip2 gettext gpg gpg-agent wget \
   && gpg --verify i2psource_${I2P_VERSION}.tar.bz2.sig \
   && tar -xvf i2psource_${I2P_VERSION}.tar.bz2 \
   && cd i2p-${I2P_VERSION} \
-  && ant preppkg-linux-only \
-  && apk del apache-ant bzip2 gettext gpg gpg-agent wget
+  && ant preppkg-linux-only
 
 
-FROM alpine:latest
+FROM alpine:stable-slim
 ARG I2P_USER_ID
 ARG I2P_VERSION
 ARG GROUP_ID
