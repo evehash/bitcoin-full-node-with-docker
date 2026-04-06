@@ -1,4 +1,4 @@
-FROM alpine:3.23 AS build
+FROM alpine:latest AS build
 ARG BTC_RPC_EXPLORER_VERSION
 RUN apk add --update --no-cache curl git gpg gpg-agent nodejs npm python3 \
   && cd /opt \
