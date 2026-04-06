@@ -9,15 +9,7 @@ services:
         - GROUP_ID=$SHARED_GID
     volumes:
       - $TOR_DATA:/home/tor
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "tor", "--verify-config", "-f", "/home/tor/torrc.default"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    networks:
-      default:
-        ipv4_address: 172.18.0.2
+    restart: on-failure
   i2p:
     image: i2p:$I2P_VERSION
     profiles:
@@ -35,14 +27,11 @@ services:
     ports:
       - 7657:7657
     restart: on-failure
-    networks:
-      default:
-        ipv4_address: 172.18.0.3
   bitcoin:
     image: bitcoin:$BITCOIN_VERSION
-    #depends_on:
-    #  tor:
-    #    condition: service_healthy
+    depends_on:
+      - tor
+      # - i2p
     build:
       context: ./bitcoin
       args:
@@ -52,13 +41,10 @@ services:
     volumes:
       - $BITCOIN_DATA:/home/bitcoin/.bitcoin
     restart: unless-stopped
-    networks:
-      default:
-        ipv4_address: 172.18.0.4
   electrs:
     image: electrs:$ELECTRS_VERSION
-    #depends_on:
-    #  - bitcoin
+    depends_on:
+      - bitcoin
     build:
       context: ./electrs
       args:
@@ -69,9 +55,6 @@ services:
       - $BITCOIN_DATA:/home/electrs/.bitcoin
       - $ELECTRS_DATA:/home/electrs/.electrs
     restart: on-failure
-    networks:
-      default:
-        ipv4_address: 172.18.0.5
   btcrpcexplorer:
     image: btcrpcexplorer:$BTC_RPC_EXPLORER_VERSION
     depends_on:
@@ -86,9 +69,6 @@ services:
     volumes:
       - $BTC_RPC_EXPLORER_DATA:/home/btcrpcexplorer/.config
     restart: on-failure
-    networks:
-      default:
-        ipv4_address: 172.18.0.6
   nginx:
     image: nginx:alpine-slim
     depends_on:
@@ -100,13 +80,3 @@ services:
     volumes:
       - $NGINX_DATA:/etc/nginx
     restart: on-failure
-    networks:
-      default:
-        ipv4_address: 172.18.0.7
-
-networks:
-  default:
-    ipam:
-      config:
-        - subnet: 172.18.0.0/16
-          gateway: 172.18.0.1
