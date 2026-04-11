@@ -22,8 +22,6 @@ services:
         - GROUP_ID=$SHARED_GID
     volumes:
       - $I2P_DATA:/i2p/.i2p
-    environment:
-      - EXT_PORT:7656
     ports:
       - 7657:7657
     restart: on-failure
