@@ -1,4 +1,4 @@
-name: daily build
+name: weekly build
 on:
   workflow_dispatch:
   schedule:
