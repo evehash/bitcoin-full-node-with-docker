@@ -30,12 +30,12 @@ The following services are deployed:
 
 | Service                                                                         | Version      | Base image         | Size    |
 | ------------------------------------------------------------------------------- | ------------ | ------------------ | --------|
-| <a href="https://gitlab.torproject.org/tpo/core/tor/">Tor</a>                   | 0.4.8.13     | debian:stable-slim | 83.2 MB |
-| <a href="https://github.com/bitcoin/bitcoin">Bitcoin core</a>                   | 28.1         | debian:stable-slim | 79.8 MB |
-| <a href="https://github.com/romanz/electrs">Electrs</a>                         | 0.10.8       | debian:stable-slim | 80.7 MB |
-| <a href="https://github.com/janoside/btc-rpc-explorer">Bitcoin RPC Explorer</a> | 3.4.0        | node:22-slim       | 377 MB  |
+| <a href="https://gitlab.torproject.org/tpo/core/tor/">Tor</a>                   | 0.4.9.6      | debian:stable-slim | 88.1 MB |
+| <a href="https://github.com/bitcoin/bitcoin">Bitcoin core</a>                   | 30.2         | debian:stable-slim | 84.2 MB |
+| <a href="https://github.com/romanz/electrs">Electrs</a>                         | 0.11.1       | debian:stable-slim | 106 MB  |
+| <a href="https://github.com/janoside/btc-rpc-explorer">Bitcoin RPC Explorer</a> | 3.5.1        | node:22-slim       | 377 MB  |
 | <a href="https://github.com/nginxinc/docker-nginx">NGINX</a>                    | stable-slim  | nginx:alpine-slim  | 11.5 MB |
-| <a href="https://github.com/i2p/i2p.i2p">i2p</a> (optional)                     | 2.7.0        | alpine:latest      | 222 MB  |
+| <a href="https://github.com/i2p/i2p.i2p">i2p</a> (optional)                     | 2.11.0       | alpine:latest      | 232 MB  |
 
 ## Documentation
 

@@ -10,9 +10,6 @@ services:
     volumes:
       - $TOR_DATA:/home/tor
     restart: on-failure
-    networks:
-      default:
-        ipv4_address: 172.18.0.2
   i2p:
     image: i2p:$I2P_VERSION
     profiles:
@@ -25,20 +22,16 @@ services:
         - GROUP_ID=$SHARED_GID
     volumes:
       - $I2P_DATA:/i2p/.i2p
-    environment:
-      - EXT_PORT:7656
     ports:
       - 7657:7657
     restart: on-failure
-    networks:
-      default:
-        ipv4_address: 172.18.0.3
-  bitcoind:
-    image: bitcoind:$BITCOIN_VERSION
+  bitcoin:
+    image: bitcoin:$BITCOIN_VERSION
     depends_on:
       - tor
+      # - i2p
     build:
-      context: ./bitcoind
+      context: ./bitcoin
       args:
         - BITCOIN_VERSION=$BITCOIN_VERSION
         - BITCOIN_USER_ID=$BITCOIN_USER_ID
@@ -46,13 +39,10 @@ services:
     volumes:
       - $BITCOIN_DATA:/home/bitcoin/.bitcoin
     restart: unless-stopped
-    networks:
-      default:
-        ipv4_address: 172.18.0.4
   electrs:
     image: electrs:$ELECTRS_VERSION
     depends_on:
-      - bitcoind
+      - bitcoin
     build:
       context: ./electrs
       args:
@@ -63,13 +53,10 @@ services:
       - $BITCOIN_DATA:/home/electrs/.bitcoin
       - $ELECTRS_DATA:/home/electrs/.electrs
     restart: on-failure
-    networks:
-      default:
-        ipv4_address: 172.18.0.5
   btcrpcexplorer:
     image: btcrpcexplorer:$BTC_RPC_EXPLORER_VERSION
     depends_on:
-      - bitcoind
+      - bitcoin
       - electrs
     build:
       context: ./btcrpcexplorer
@@ -80,9 +67,6 @@ services:
     volumes:
       - $BTC_RPC_EXPLORER_DATA:/home/btcrpcexplorer/.config
     restart: on-failure
-    networks:
-      default:
-        ipv4_address: 172.18.0.6
   nginx:
     image: nginx:alpine-slim
     depends_on:
@@ -94,13 +78,3 @@ services:
     volumes:
       - $NGINX_DATA:/etc/nginx
     restart: on-failure
-    networks:
-      default:
-        ipv4_address: 172.18.0.7
-
-networks:
-  default:
-    ipam:
-      config:
-        - subnet: 172.18.0.0/16
-          gateway: 172.18.0.1

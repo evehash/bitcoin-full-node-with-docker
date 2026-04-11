@@ -5,7 +5,7 @@
 - <a href="#setup-the-multi-container-applications">Setup the multi-container applications</a>
 - <a href="#running-services-for-the-first-time">Running services for the first time</a>
   - <a href="#tor">tor</a>
-  - <a href="#bitcoind">bitcoind</a>
+  - <a href="#bitcoin">bitcoin</a>
   - <a href="#electrs">electrs</a>
   - <a href="#btcrpcexplorer">btcrpcexplorer</a>
   - <a href="#nginx">nginx</a>
@@ -84,7 +84,7 @@ SHARED_GID=1099
 
 # The paths where to mount the volumes.
 TOR_DATA=/mnt/hdd/tor
-BITCOIN_DATA=/mnt/hdd/bitcoind
+BITCOIN_DATA=/mnt/hdd/bitcoin
 ELECTRS_DATA=/mnt/hdd/electrs
 BTC_RPC_EXPLORER_DATA=/mnt/hdd/btcrpcexplorer
 NGINX_DATA=/mnt/hdd/nginx
@@ -96,7 +96,7 @@ Optionally, the user id of each service can be adjusted to match the user id of 
 
 For the first installation, we recommend starting the services one at a time. Take your time to verify by yourself the `Dockerfiles` and validate that the services are being deployed correctly.
 
-It is also important because bitcoind will take a long time to synchronize, and if in the meantime, the rest of the containers that depend on it are continuously failing because the service is not available, these are resources that will make the process take even longer.
+It is also important because bitcoin will take a long time to synchronize, and if in the meantime, the rest of the containers that depend on it are continuously failing because the service is not available, these are resources that will make the process take even longer.
 
 ### tor
 
@@ -125,11 +125,11 @@ $ docker logs -f 06a96296854a
 
 
 
-### bitcoind
+### bitcoin
 
-The bitcoind configuration file is located in `/mnt/hdd/bitcoind/bitcoin.conf`. The default parameters are enough, except for one that depends on the memory of your local machine and the default password for communication between services, which you should generate yourself for security reasons.
+The bitcoin configuration file is located in `/mnt/hdd/bitcoin/bitcoin.conf`. The default parameters are enough, except for one that depends on the memory of your local machine and the default password for communication between services, which you should generate yourself for security reasons.
 
-The more cache bitcoind has, the faster it will be downloading and synchronizing the blocks. As a reference, you can set half of the machine memory expressed in MB. For example, if the node has 4GB of RAM, you can put 2048.
+The more cache bitcoin has, the faster it will be downloading and synchronizing the blocks. As a reference, you can set half of the machine memory expressed in MB. For example, if the node has 4GB of RAM, you can put 2048.
 
 ```conf
 dbcache=2048
@@ -157,14 +157,14 @@ Replace the two strings in the configuration file and take note of the passwords
 
 This is the longest process and until it is finished we cannot continue. Your node will start synchronizing the entire blockchain with the rest of peers. This process can take days or even weeks. It's very difficult to give an estimation, because it depends on the capacity of your hardware, the state of the network, your connection speed... So be patient.
 
-Run the following command `docker compose up -d bitcoind` to start the service and check the logs to be sure that the services is running properly.
+Run the following command `docker compose up -d bitcoin` to start the service and check the logs to be sure that the services is running properly.
 
-For this example, after a certain time, bitcoind was already synchronizing the 769944 block height (`height=769944`) and almost all the blockchain was already synchronized (`progress=0.999838`). At the time of writing this document, this was the last block mined, so the node was synchronized and we can move the next step.
+For this example, after a certain time, bitcoin was already synchronizing the 769944 block height (`height=769944`) and almost all the blockchain was already synchronized (`progress=0.999838`). At the time of writing this document, this was the last block mined, so the node was synchronized and we can move the next step.
 
 ```shell
-$ docker compose up bitcoind -d
-$ docker ps | grep bitcoind
-# 7cc89e57effb   bitcoind:24.0.1
+$ docker compose up bitcoin -d
+$ docker ps | grep bitcoin
+# 7cc89e57effb   bitcoin:30.2
 $ docker logs -f 7cc89e57effb
 # You should see it synchronizing blocks as follows:
 #
@@ -182,11 +182,11 @@ $ docker logs -f 7cc89e57effb
 
 ### electrs
 
-The electrs configuration file is located in `/mnt/hdd/electrs/electrs.conf`. The default parameters are enough, except for the password which must be replaced by the one generated earlier when configuring bitcoind.
+The electrs configuration file is located in `/mnt/hdd/electrs/electrs.conf`. The default parameters are enough, except for the password which must be replaced by the one generated earlier when configuring bitcoin.
 
 Run the following command `docker compose up -d electrs` to start the service and check the logs to be sure that the service is running properly.
 
-For this example, we can see that electrs has already indexed the entire blockchain (`height=769944`, same block height as bitcoind).
+For this example, we can see that electrs has already indexed the entire blockchain (`height=769944`, same block height as bitcoin).
 
 ```shell
 $ docker ps | grep electrs
@@ -200,11 +200,11 @@ $ docker logs -f 92ebe51900c9
 
 ### btcrpcexplorer
 
-The btc-rpc-explorer configuration file is located in `/mnt/hdd/btcrpcexplorer/btc-rpc-explorer.env`. The default parameters are also enough, except for the password which must be replaced by the one generated earlier when configuring bitcoind.
+The btc-rpc-explorer configuration file is located in `/mnt/hdd/btcrpcexplorer/btc-rpc-explorer.env`. The default parameters are also enough, except for the password which must be replaced by the one generated earlier when configuring bitcoin.
 
 Run the following command `docker compose up -d btcrpcexplorer` to start the service and check the logs to be sure that the service is running properly.
 
-For this example, we can see that the service has beed started and it's connected to bitcoind (`RPC Connected: ... subversion=/Satoshi:24.0.1`)
+For this example, we can see that the service has beed started and it's connected to bitcoin (`RPC Connected: ... subversion=/Satoshi:24.0.1`)
 
 ```shell
 $ docker compose up -d btcrpcexplorer
@@ -223,7 +223,7 @@ $ docker logs -f c8b93a8b9410
 # 2023-01-02T17:21:34.479Z btcexp:app Environment(development) - Node: v16.19.0, Platform: linux, Versions: {"node":"16.19.0","v8":"9.4.146.26-node.24","uv":"1.43.0","zlib":"1.2.11","brotli":"1.0.9","ares":"1.18.1","modules":"93","nghttp2":"1.47.0","napi":"8","llhttp":"6.0.10","openssl":"1.1.1s+quic","cldr":"41.0","icu":"71.1","tz":"2022f","unicode":"14.0","ngtcp2":"0.8.1","nghttp3":"0.7.0"}
 # 2023-01-02T17:21:34.479Z btcexp:app No sourcecode version available, continuing to use default cacheId '3.3.0'
 # 2023-01-02T17:21:34.479Z btcexp:app Starting BTC RPC Explorer, v3.3.0 at http://172.18.0.5:3002/
-# 2023-01-02T17:21:34.479Z btcexp:app Connecting to RPC node at bitcoind:8332
+# 2023-01-02T17:21:34.479Z btcexp:app Connecting to RPC node at bitcoin:8332
 # 2023-01-02T17:21:34.484Z btcexp:app Verifying RPC connection...
 # 2023-01-02T17:21:34.487Z btcexp:app Loading mining pools config
 # 2023-01-02T17:21:34.515Z btcexp:app RPC Connected: version=240001 subversion=/Satoshi:24.0.1/, parsedVersion(used for RPC versioning)=24.0.1, protocolversion=70016, chain=main, services=[NETWORK, WITNESS, NETWORK_LIMITED]
@@ -245,7 +245,7 @@ Two files `certificate.crt` and `certificate.key` will be generated. It is impor
 
 Finally, run the following command `docker compose up -d nginx` to start the service and check the logs to be sure that the service is running properly.
 
-For this example, we can see that the service has beed started and it's connected to bitcoind.
+For this example, we can see that the service has beed started and it's connected to bitcoin.
 
 ```shell
 $ docker ps | grep nginx
@@ -268,9 +268,9 @@ If you have reached this point, you should be able to access btc-rpc-explorer an
 
 ## Post-installation
 
-Once the node has been synchronized, we can change the bitcoind dbcache to the minimum. It is no longer necessary to have so much memory for this purpose.
+Once the node has been synchronized, we can change the bitcoin dbcache to the minimum. It is no longer necessary to have so much memory for this purpose.
 
-Edit the bitcoind configuration file and change this parameter.
+Edit the bitcoin configuration file and change this parameter.
 
 ```conf
 dbcache=360
