@@ -29,4 +29,4 @@ RUN apk add --update --no-cache openjdk17-jre-headless \
 WORKDIR /i2p
 USER i2p
 
-CMD ["/startapp.sh"]
+CMD /startapp.sh

@@ -1,5 +1,6 @@
 FROM debian:stable-slim AS build
 ARG TOR_VERSION
+
 RUN apt-get update \
   && apt-get install --no-install-recommends -y autoconf automake build-essential ca-certificates curl git gpg gpg-agent libevent-dev libssl-dev libzstd-dev zlib1g-dev \
   && mkdir /tmp/gpg-keys && cd /tmp/gpg-keys \
@@ -29,7 +30,9 @@ RUN apt-get update \
 FROM debian:stable-slim
 ARG TOR_USER_ID
 ARG GROUP_ID
+
 COPY --from=build /tmp/tor/src/app/tor /usr/local/bin/tor
+
 RUN apt-get update \
   && apt-get install -y --no-install-recommends adduser \
   && rm -rf /var/lib/apt/lists/* \

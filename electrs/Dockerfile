@@ -1,5 +1,6 @@
 FROM debian:stable-slim AS build
 ARG ELECTRS_VERSION
+
 RUN apt-get update \
   && apt-get install --no-install-recommends -y build-essential ca-certificates cargo cmake curl git libclang-dev openssh-client \
   && cd /tmp \
@@ -15,7 +16,9 @@ RUN apt-get update \
 FROM debian:stable-slim
 ARG ELECTRS_USER_ID
 ARG GROUP_ID
+
 COPY --from=build /tmp/electrs/target/release/electrs /usr/local/bin/electrs
+
 RUN apt-get update \
   && apt-get install -y --no-install-recommends adduser \
   && rm -rf /var/lib/apt/lists/* \

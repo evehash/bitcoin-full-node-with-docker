@@ -1,5 +1,6 @@
 FROM debian:stable-slim AS build
 ARG BITCOIN_VERSION
+
 RUN apt-get update \
   && apt-get install --no-install-recommends -y build-essential ca-certificates cmake curl git gpg gpg-agent patch pkg-config python3 \
   && cd /tmp \
@@ -36,7 +37,9 @@ RUN apt-get update \
 FROM debian:stable-slim
 ARG BITCOIN_USER_ID
 ARG GROUP_ID
+
 COPY --from=build /tmp/bitcoin/build/bin/bitcoind /usr/local/bin/bitcoind
+
 RUN apt-get update \
   && apt-get install -y --no-install-recommends adduser \
   && rm -rf /var/lib/apt/lists/* \
