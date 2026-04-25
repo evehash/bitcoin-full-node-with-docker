@@ -28,11 +28,11 @@ The node will participate in the Bitcoin network by exchanging blocks with other
 
 The following services are deployed:
 
-| Service                                                                         | Version      | Base image         | Size    |
+| Service                                                                      | Version      | Base image        | Size   |
 | ------------------------------------------------------------------------------- | ------------ | ------------------ | --------|
-| <a href="https://gitlab.torproject.org/tpo/core/tor/">Tor</a>                   | 0.4.9.6      | debian:stable-slim | 88.1 MB |
+| <a href="https://gitlab.torproject.org/tpo/core/tor/">Tor</a>                   | 0.4.9.6      | alpine:3.23        | 18.2 MB |
 | <a href="https://github.com/bitcoin/bitcoin">Bitcoin core</a>                   | 30.2         | debian:stable-slim | 84.2 MB |
-| <a href="https://github.com/romanz/electrs">Electrs</a>                         | 0.11.1       | debian:stable-slim | 106 MB  |
+| <a href="https://github.com/romanz/electrs">Electrs</a>                         | 0.11.1       | debian:stable-slim | 21.2 MB |
 | <a href="https://github.com/janoside/btc-rpc-explorer">Bitcoin RPC Explorer</a> | 3.5.1        | node:22-slim       | 377 MB  |
 | <a href="https://github.com/nginxinc/docker-nginx">NGINX</a>                    | stable-slim  | nginx:alpine-slim  | 11.5 MB |
 | <a href="https://github.com/i2p/i2p.i2p">i2p</a> (optional)                     | 2.11.0       | alpine:latest      | 232 MB  |
