@@ -22,7 +22,7 @@ RUN apk add --no-cache \
 
 WORKDIR /tmp
 
-RUN git -c advice.detachedHead=false clone \
+RUN git clone \
       --depth 1 \
       --branch "tor-${TOR_VERSION}" \
       https://gitlab.torproject.org/tpo/core/tor.git
@@ -49,7 +49,7 @@ RUN ./autogen.sh \
       LIBS="-lzstd -lz" \
   && make -j"$(nproc)" \
   && strip src/app/tor \
-  && cp src/app/tor /tmp/tor-bin
+  && cp src/app/tor /tmp/tor
 
 
 FROM alpine:3.23
@@ -57,7 +57,7 @@ FROM alpine:3.23
 ARG TOR_USER_ID=1000
 ARG GROUP_ID=1000
 
-COPY --from=build /tmp/tor-bin /usr/local/bin/tor
+COPY --from=build /tmp/tor /usr/local/bin/tor
 
 RUN addgroup -g "${GROUP_ID}" tor \
   && adduser -u "${TOR_USER_ID}" -D -G tor -h /home/tor tor \
