@@ -1,54 +1,93 @@
-FROM debian:stable-slim AS build
+FROM alpine:3.23 AS build
+
 ARG BITCOIN_VERSION
 
-RUN apt-get update \
-  && apt-get install --no-install-recommends -y build-essential ca-certificates cmake curl git gpg gpg-agent patch pkg-config python3 \
-  && cd /tmp \
+RUN apk add --no-cache \
+      autoconf \
+      automake \
+      build-base \
+      ca-certificates \
+      cmake \
+      curl \
+      git \
+      gnupg \
+      libtool \
+      linux-headers \
+      patch \
+      perl \
+      pkgconf \
+      python3
+
+WORKDIR /tmp
+
+RUN mkdir -p /root/.gnupg \
+  && chmod 700 /root/.gnupg \
   && curl \
-    -O https://raw.githubusercontent.com/bitcoin-core/guix.sigs/main/builder-keys/achow101.gpg \
-    -O https://raw.githubusercontent.com/bitcoin-core/guix.sigs/main/builder-keys/fanquake.gpg \
-    -O https://raw.githubusercontent.com/bitcoin-core/guix.sigs/main/builder-keys/glozow.gpg \
-    -O https://raw.githubusercontent.com/bitcoin-core/guix.sigs/main/builder-keys/guggero.gpg \
-    -O https://raw.githubusercontent.com/bitcoin-core/guix.sigs/main/builder-keys/hebasto.gpg \
-    -O https://raw.githubusercontent.com/bitcoin-core/guix.sigs/main/builder-keys/theStack.gpg \
-    -O https://raw.githubusercontent.com/bitcoin-core/guix.sigs/main/builder-keys/vertiond.gpg \
-    -O https://raw.githubusercontent.com/bitcoin-core/guix.sigs/main/builder-keys/willyko.gpg \
-  && gpg --import *.gpg \
-  && git clone -b v${BITCOIN_VERSION} https://github.com/bitcoin/bitcoin.git \
-  && cd bitcoin \
-  && git verify-tag v${BITCOIN_VERSION} \
+      -O https://raw.githubusercontent.com/bitcoin-core/guix.sigs/main/builder-keys/achow101.gpg \
+      -O https://raw.githubusercontent.com/bitcoin-core/guix.sigs/main/builder-keys/fanquake.gpg \
+      -O https://raw.githubusercontent.com/bitcoin-core/guix.sigs/main/builder-keys/glozow.gpg \
+      -O https://raw.githubusercontent.com/bitcoin-core/guix.sigs/main/builder-keys/guggero.gpg \
+      -O https://raw.githubusercontent.com/bitcoin-core/guix.sigs/main/builder-keys/hebasto.gpg \
+      -O https://raw.githubusercontent.com/bitcoin-core/guix.sigs/main/builder-keys/theStack.gpg \
+      -O https://raw.githubusercontent.com/bitcoin-core/guix.sigs/main/builder-keys/vertiond.gpg \
+      -O https://raw.githubusercontent.com/bitcoin-core/guix.sigs/main/builder-keys/willyko.gpg \
+  && gpg --batch --import *.gpg
+
+RUN git clone \
+      --depth 1 \
+      --branch "v${BITCOIN_VERSION}" \
+      https://github.com/bitcoin/bitcoin.git
+
+WORKDIR /tmp/bitcoin
+
+RUN git verify-tag "v${BITCOIN_VERSION}"
+
+RUN case "$(apk --print-arch)" in \
+       x86_64)  HOST=x86_64-alpine-linux-musl ;; \
+       aarch64) HOST=aarch64-alpine-linux-musl ;; \
+       armv7)   HOST=armv7-alpine-linux-musleabihf ;; \
+       ppc64le) HOST=powerpc64le-alpine-linux-musl ;; \
+       s390x)   HOST=s390x-alpine-linux-musl ;; \
+       *) echo "Unsupported arch: $(apk --print-arch)" >&2; exit 1 ;; \
+     esac \
   && cd depends \
-  && make -j$(nproc) HOST=$(gcc -dumpmachine) NO_QT=1 NO_QR=1 NO_ZMQ=1 NO_USDT=1 NO_WALLET=1 \
+  && make -j"$(nproc)" HOST="$HOST" NO_BDB=1 NO_QT=1 NO_QR=1 NO_SQLITE=1 NO_NATPMP=1 NO_UPNP=1 NO_ZMQ=1 NO_USDT=1 NO_WALLET=1 NO_HARDEN=1 \
   && cd .. \
   && cmake -B build \
-    --toolchain depends/$(gcc -dumpmachine)/toolchain.cmake \
-    -DBUILD_BENCH=OFF \
-    -DBUILD_CLI=OFF \
-    -DENABLE_EXTERNAL_SIGNER=OFF \
-    -DBUILD_FUZZ_BINARY=OFF \
-    -DBUILD_TESTS=OFF \
-    -DINSTALL_MAN=OFF \
-    -DREDUCE_EXPORTS=ON \
-    -DAPPEND_LDFLAGS="-static-libstdc++ -s" \
-  && cmake --build build -j$(nproc) \
-  && gzexe build/bin/bitcoind
+      --toolchain "depends/$HOST/toolchain.cmake" \
+      -DAPPEND_LDFLAGS="-static -static-libgcc -static-libstdc++ -s" \
+      -DBUILD_BENCH=OFF \
+      -DBUILD_BITCOIN_BIN=OFF \
+      -DBUILD_CLI=OFF \
+      -DBUILD_FUZZ_BINARY=OFF \
+      -DBUILD_TESTS=OFF \
+      -DBUILD_TX=OFF \
+      -DBUILD_UTIL=OFF \
+      -DENABLE_EXTERNAL_SIGNER=OFF \
+      -DENABLE_IPC=OFF \
+      -DENABLE_WALLET=OFF \
+      -DINSTALL_MAN=OFF \
+      -DREDUCE_EXPORTS=ON \
+      -DWITH_ZMQ=OFF \
+  && cmake --build build -j"$(nproc)" \
+  && strip build/bin/bitcoind \
+  && cp build/bin/bitcoind /tmp/bitcoind-bin
 
 
-FROM debian:stable-slim
-ARG BITCOIN_USER_ID
-ARG GROUP_ID
+FROM alpine:3.23
 
-COPY --from=build /tmp/bitcoin/build/bin/bitcoind /usr/local/bin/bitcoind
+ARG BITCOIN_USER_ID=1000
+ARG GROUP_ID=1000
 
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends adduser \
-  && rm -rf /var/lib/apt/lists/* \
-  && addgroup --gid ${GROUP_ID} bitcoin \
-  && adduser -u ${BITCOIN_USER_ID} --disabled-password --gecos "" --ingroup bitcoin bitcoin \
-  && apt-get remove -y adduser \
-  && mkdir /home/bitcoin/.bitcoin \
-  && chown bitcoin:bitcoin /home/bitcoin/.bitcoin
+COPY --from=build /tmp/bitcoind-bin /usr/local/bin/bitcoind
+
+RUN addgroup -g "${GROUP_ID}" bitcoin \
+  && adduser -u "${BITCOIN_USER_ID}" -D -G bitcoin -h /home/bitcoin bitcoin \
+  && mkdir -p /home/bitcoin/.bitcoin \
+  && chown -R bitcoin:bitcoin /home/bitcoin
 
 USER bitcoin
+WORKDIR /home/bitcoin
 
-CMD bitcoind
+ENTRYPOINT ["/usr/local/bin/bitcoind"]
+CMD ["-datadir=/home/bitcoin/.bitcoin"]
