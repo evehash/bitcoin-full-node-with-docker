@@ -1,17 +1,24 @@
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "5m"
+    max-file: "3"
+
 services:
   tor:
-    image: tor:$TOR_VERSION
+    image: tor:${TOR_VERSION}
     build:
       context: ./tor
       args:
-        - TOR_VERSION=$TOR_VERSION
-        - TOR_USER_ID=$TOR_USER_ID
-        - GROUP_ID=$SHARED_GID
+        TOR_VERSION: ${TOR_VERSION}
+        TOR_USER_ID: ${TOR_USER_ID}
+        GROUP_ID: ${SHARED_GID}
     volumes:
-      - $TOR_DATA:/home/tor
+      - ${TOR_DATA}:/home/tor
+    logging: *default-logging
     restart: on-failure
   i2p:
-    image: i2p:$I2P_VERSION
+    image: i2p:${I2P_VERSION}
     profiles:
       - disabled
     build:
@@ -23,7 +30,10 @@ services:
     volumes:
       - $I2P_DATA:/i2p/.i2p
     ports:
-      - 7657:7657
+      - "7657:7657"
+    volumes:
+      - ${I2P_DATA}:/i2p/.i2p
+    logging: *default-logging
     restart: on-failure
   bitcoin:
     image: bitcoin:$BITCOIN_VERSION
@@ -33,39 +43,42 @@ services:
     build:
       context: ./bitcoin
       args:
-        - BITCOIN_VERSION=$BITCOIN_VERSION
-        - BITCOIN_USER_ID=$BITCOIN_USER_ID
-        - GROUP_ID=$SHARED_GID
+        BITCOIN_VERSION: ${BITCOIN_VERSION}
+        BITCOIN_USER_ID: ${BITCOIN_USER_ID}
+        GROUP_ID: ${SHARED_GID}
     volumes:
-      - $BITCOIN_DATA:/home/bitcoin/.bitcoin
+      - ${BITCOIN_DATA}:/home/bitcoin/.bitcoin
+    logging: *default-logging
     restart: unless-stopped
   electrs:
-    image: electrs:$ELECTRS_VERSION
+    image: electrs:${ELECTRS_VERSION}
     depends_on:
       - bitcoin
     build:
       context: ./electrs
       args:
-        - ELECTRS_VERSION=$ELECTRS_VERSION
-        - ELECTRS_USER_ID=$ELECTRS_USER_ID
-        - GROUP_ID=$SHARED_GID
+        ELECTRS_VERSION: ${ELECTRS_VERSION}
+        ELECTRS_USER_ID: ${ELECTRS_USER_ID}
+        GROUP_ID: ${SHARED_GID}
     volumes:
-      - $BITCOIN_DATA:/home/electrs/.bitcoin
-      - $ELECTRS_DATA:/home/electrs/.electrs
+      - ${BITCOIN_DATA}:/home/electrs/.bitcoin
+      - ${ELECTRS_DATA}:/home/electrs/.electrs
+    logging: *default-logging
     restart: on-failure
   btcrpcexplorer:
-    image: btcrpcexplorer:$BTC_RPC_EXPLORER_VERSION
+    image: btcrpcexplorer:${BTC_RPC_EXPLORER_VERSION}
     depends_on:
       - bitcoin
       - electrs
     build:
       context: ./btcrpcexplorer
       args:
-        - BTC_RPC_EXPLORER_VERSION=$BTC_RPC_EXPLORER_VERSION
-        - BTC_RPC_EXPLORER_USER_ID=$BTC_RPC_EXPLORER_USER_ID
-        - GROUP_ID=$SHARED_GID
+        BTC_RPC_EXPLORER_VERSION: ${BTC_RPC_EXPLORER_VERSION}
+        BTC_RPC_EXPLORER_USER_ID: ${BTC_RPC_EXPLORER_USER_ID}
+        GROUP_ID: ${SHARED_GID}
     volumes:
-      - $BTC_RPC_EXPLORER_DATA:/home/btcrpcexplorer/.config
+      - ${BTC_RPC_EXPLORER_DATA}:/home/btcrpcexplorer/.config
+    logging: *default-logging
     restart: on-failure
   nginx:
     image: nginx:alpine-slim
@@ -73,8 +86,9 @@ services:
       - btcrpcexplorer
       - electrs
     ports:
-      - $BTC_RPC_EXPLORER_HTTPS_PORT:3003
-      - $ELECTRS_SSL_PORT:50002
+      - "${BTC_RPC_EXPLORER_HTTPS_PORT}:3003"
+      - "${ELECTRS_SSL_PORT}:50002"
     volumes:
-      - $NGINX_DATA:/etc/nginx
+      - ${NGINX_DATA}:/etc/nginx
+    logging: *default-logging
     restart: on-failure

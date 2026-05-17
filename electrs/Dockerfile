@@ -1,33 +1,61 @@
-FROM debian:stable-slim AS build
+FROM alpine:3.23 AS build
+
 ARG ELECTRS_VERSION
 
-RUN apt-get update \
-  && apt-get install --no-install-recommends -y build-essential ca-certificates cargo cmake curl git libclang-dev openssh-client \
-  && cd /tmp \
-  && git clone --branch v${ELECTRS_VERSION} https://github.com/romanz/electrs.git \
-  && cd electrs \
-  && curl -fsSL https://raw.githubusercontent.com/romanz/keys/refs/heads/main/README.md | grep git@romanzey.de > /tmp/allowed_signers \
+RUN apk add --no-cache \
+      build-base \
+      ca-certificates \
+      cargo \
+      clang-dev \
+      cmake \
+      curl \
+      git \
+      linux-headers \
+      openssh-client
+
+WORKDIR /tmp
+
+RUN git clone \
+      --depth 1 \
+      --branch "v${ELECTRS_VERSION}" \
+      https://github.com/romanz/electrs.git
+
+WORKDIR /tmp/electrs
+
+RUN curl -fsSL https://raw.githubusercontent.com/romanz/keys/refs/heads/main/README.md \
+      | grep 'git@romanzey.de' > /tmp/allowed_signers \
   && git config gpg.ssh.allowedSignersFile /tmp/allowed_signers \
-  && git verify-tag v${ELECTRS_VERSION} \
-  && cargo build --no-default-features --locked --release \
-  && gzexe target/release/electrs
+  && git verify-tag "v${ELECTRS_VERSION}"
+
+RUN case "$(apk --print-arch)" in \
+       x86_64)  HOST=x86_64-alpine-linux-musl ;; \
+       aarch64) HOST=aarch64-alpine-linux-musl ;; \
+       armv7)   HOST=armv7-alpine-linux-musleabihf ;; \
+       ppc64le) HOST=powerpc64le-alpine-linux-musl ;; \
+       s390x)   HOST=s390x-alpine-linux-musl ;; \
+       *) echo "Unsupported arch: $(apk --print-arch)" >&2; exit 1 ;; \
+     esac \
+  && CXXFLAGS="-include cstdint" \
+     RUSTFLAGS="-C target-feature=+crt-static -C link-arg=-static-libstdc++ -C link-arg=-static-libgcc" \
+     cargo build --target "$HOST" --no-default-features --locked --release \
+  && strip "target/$HOST/release/electrs" \
+  && cp "target/$HOST/release/electrs" /tmp/electrs-bin
 
 
-FROM debian:stable-slim
-ARG ELECTRS_USER_ID
-ARG GROUP_ID
+FROM alpine:3.23
 
-COPY --from=build /tmp/electrs/target/release/electrs /usr/local/bin/electrs
+ARG ELECTRS_USER_ID=1000
+ARG GROUP_ID=1000
 
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends adduser \
-  && rm -rf /var/lib/apt/lists/* \
-  && addgroup --gid ${GROUP_ID} electrs \
-  && adduser -u ${ELECTRS_USER_ID} --disabled-password --gecos "" --ingroup electrs electrs \
-  && apt-get remove -y adduser \
-  && mkdir /home/electrs/.electrs \
-  && chown electrs:electrs /home/electrs/.electrs
+COPY --from=build /tmp/electrs-bin /usr/local/bin/electrs
+
+RUN addgroup -g "${GROUP_ID}" electrs \
+  && adduser -u "${ELECTRS_USER_ID}" -D -G electrs -h /home/electrs electrs \
+  && mkdir -p /home/electrs/.electrs \
+  && chown -R electrs:electrs /home/electrs
 
 USER electrs
+WORKDIR /home/electrs
 
-CMD electrs --conf ~/.electrs/electrs.conf
+ENTRYPOINT ["/usr/local/bin/electrs"]
+CMD ["--conf", "/home/electrs/.electrs/electrs.conf"]
