@@ -34,7 +34,7 @@ The stack is designed for users who want transparent local builds instead of pul
 | [Electrs](https://github.com/romanz/electrs) | Serves Electrum-compatible wallets from your own node. | 0.11.1 | ![Electrs version status](https://img.shields.io/endpoint?url=https%3A%2F%2Fevehash.github.io%2Fbitcoin-full-node-with-docker%2Fversion-status%2Felectrs.json) |
 | [BTC RPC Explorer](https://github.com/janoside/btc-rpc-explorer) | Provides a local Bitcoin blockchain explorer backed by your node. | 3.5.1 | ![BTC RPC Explorer version status](https://img.shields.io/endpoint?url=https%3A%2F%2Fevehash.github.io%2Fbitcoin-full-node-with-docker%2Fversion-status%2Fbtcrpcexplorer.json) |
 | [NGINX](https://github.com/nginxinc/docker-nginx) | Terminates local TLS for BTC RPC Explorer and Electrs. | stable-slim | ![NGINX version status](https://img.shields.io/endpoint?url=https%3A%2F%2Fevehash.github.io%2Fbitcoin-full-node-with-docker%2Fversion-status%2Fnginx.json) |
-| [I2P](https://github.com/i2p/i2p.i2p) | Optional additional privacy network for advanced users. | 2.11.0 | ![I2P version status](https://img.shields.io/endpoint?url=https%3A%2F%2Fevehash.github.io%2Fbitcoin-full-node-with-docker%2Fversion-status%2Fi2p.json) |
+| [I2P](https://github.com/i2p/i2p.i2p) | Optional additional privacy network for advanced users. | 2.12.0 | ![I2P version status](https://img.shields.io/endpoint?url=https%3A%2F%2Fevehash.github.io%2Fbitcoin-full-node-with-docker%2Fversion-status%2Fi2p.json) |
 
 Version status badges are generated weekly. `current` means the pinned version matches the latest stable upstream tag; `new release` means a newer upstream tag is available for review.
 

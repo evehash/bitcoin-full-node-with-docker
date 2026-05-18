@@ -1,4 +1,5 @@
 # Socks listen port
+SocksPort 127.0.0.1:9050
 SocksPort tor:9050
 
 # Uncomment to expose Bitcoin Explorer as an Onion Service

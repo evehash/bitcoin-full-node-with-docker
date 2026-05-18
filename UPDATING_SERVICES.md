@@ -51,4 +51,4 @@ In case that something goes wrong during this process, it can be for two reasons
 
 In both cases, you can go back to the previous version that was working before. So simply revert the steps: put the previous version back in the `.env` file and re-run the service. The container you had previously will be deployed and everything should work again.
 
-In the meantime, you can open a thread in the [Discussions](https://github.com/reverse-hash/bitcoin-full-node-with-docker/discussions) section so we can help you.
+In the meantime, you can open a thread in the [Discussions](https://github.com/evehash/bitcoin-full-node-with-docker/discussions) section so we can help you.

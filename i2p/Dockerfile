@@ -5,23 +5,30 @@ ARG I2P_VERSION
 # Install build dependencies only in the builder stage.
 RUN apk add --no-cache \
       apache-ant \
-      bzip2 \
+      curl \
       gettext \
+      git \
       gpg \
-      gpg-agent \
-      wget
+      gpg-agent
 
 WORKDIR /opt
 
-# Download and verify the upstream source archive before building.
-RUN wget https://github.com/i2p/i2p.i2p/releases/download/i2p-${I2P_VERSION}/i2psource_${I2P_VERSION}.tar.bz2 \
-  && wget https://github.com/i2p/i2p.i2p/releases/download/i2p-${I2P_VERSION}/i2psource_${I2P_VERSION}.tar.bz2.sig \
-  && wget -O - https://geti2p.net/_static/idk.key.asc | gpg --import \
-  && gpg --verify i2psource_${I2P_VERSION}.tar.bz2.sig
+# Import I2P release signing keys before verifying the upstream release tag.
+RUN curl -fsSL https://i2p.net/zzz.key.asc | gpg --batch --import \
+  && curl -fsSL https://i2p.net/idk.key.asc | gpg --batch --import \
+  && gpgconf --kill all
+
+# Clone and verify the upstream release tag before building.
+RUN git clone \
+      --depth 1 \
+      --branch "i2p-${I2P_VERSION}" \
+      https://github.com/i2p/i2p.i2p.git \
+      "i2p-${I2P_VERSION}" \
+  && cd "i2p-${I2P_VERSION}" \
+  && git verify-tag "i2p-${I2P_VERSION}"
 
 # Build the Linux package layout copied into the runtime image.
-RUN tar -xvf i2psource_${I2P_VERSION}.tar.bz2 \
-  && cd i2p-${I2P_VERSION} \
+RUN cd i2p-${I2P_VERSION} \
   && ant preppkg-linux-only
 
 
