@@ -1,0 +1,32 @@
+name: version status
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 3 * * 1"
+
+permissions:
+  contents: write
+
+jobs:
+  update-version-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate version status badges
+        run: python3 scripts/update-version-status.py
+
+      - name: Commit badge updates
+        run: |
+          if [ -z "$(git status --porcelain -- .github/version-status)" ]; then
+            echo "Version status badges are unchanged."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/version-status
+          git commit -m "chore(status): update service version badges"
+          git push

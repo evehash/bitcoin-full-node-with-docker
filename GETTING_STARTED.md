@@ -18,14 +18,14 @@
 
 It's possible to run the node on a wide variety of systems, architectures, linux distributions and even in the cloud. We recommend using a dedicated computer with low power consumption and enough resources.
 
-The most tested environments with which we have play with is:
+The most tested environments are:
 
 - Operating system: Linux distro (Arch, Ubuntu, Debian...)
 - CPU: > 1 Ghz
 - Memory (RAM): > 2 GB
-- Disk space: 600 GB
+- Disk space: at least 1 TB recommended
 
-As we need to download the entire blockchain (480GB to this day) and it keeps growing, it's highly recommended to use some external device.
+Bitcoin.org currently lists 750 GB as the default disk requirement for Bitcoin Core, plus a one-time 740 GB initial download. This stack also stores Electrs indexes and keeps growing with the chain, so use a disk with extra headroom. An external SSD or dedicated internal drive is strongly recommended.
 
 ## Setup the host machine
 
@@ -57,7 +57,7 @@ $ sudo usermod -a -G btcnode satoshi
 Probably, you want to store the blockchain to some external device or directory outside the repository. So what you should do is copy the directories from the volumes folder to the desired location. For this example, the desired location is an empty USB hard drive mounted on `/mnt/hdd`.
 
 ```shell
-$ sudo copy -R <repository>/volumes/* /mnt/hdd
+$ sudo cp -R <repository>/volumes/* /mnt/hdd
 ```
 
 Next, change the group and permission level for the volumes. In this way, all `btcnode` users will be able to read and write shared files on that folder:
@@ -73,7 +73,7 @@ $ sudo chmod +X -R /mnt/hdd/*
 The container environment must be defined in a file `.env` in the repository root directory. Just make a copy of the sample file and edit it.
 
 ```shell
-$ copy .env.example .env
+$ cp .env.example .env
 ```
 
 It's crucial that the following parameters are properly configured or the environment will not work. The rest of the parameters can be left as they are.
@@ -109,7 +109,7 @@ For this example, we check the logs and everything looks good.
 ```shell
 $ docker compose up tor -d
 $ docker ps | grep tor
-# 06a96296854a   tor:12.0.1
+# 06a96296854a   tor:0.4.9.8
 $ docker logs -f 06a96296854a
 # [notice] Tor 0.4.7.12 (git-f43a74975ed27d78) running on Linux with Libevent 2.1.12-stable, OpenSSL 1.1.1s, Zlib 1.2.11, Liblzma N/A, Libzstd N/A and Glibc 2.31 as libc.
 # [notice] Tor can't help you if you use it wrong! Learn how to be safe at https://support.torproject.org/faq/staying-anonymous/
@@ -164,17 +164,17 @@ For this example, after a certain time, bitcoin was already synchronizing the 76
 ```shell
 $ docker compose up bitcoin -d
 $ docker ps | grep bitcoin
-# 7cc89e57effb   bitcoin:30.2
+# 7cc89e57effb   bitcoin:31.0
 $ docker logs -f 7cc89e57effb
 # You should see it synchronizing blocks as follows:
 #
-# Bitcoin Core version v24.0.1 (release build)
+# Bitcoin Core version v31.0 (release build)
 # ... Some more lines
 # net thread start
 # msghand thread start
 # opencon thread start
 # addcon thread start
-# ... At this point, it should be syncornizing blocks (height=X block number)
+# ... At this point, it should be synchronizing blocks (height=X block number)
 # UpdateTip: new best=0000000000000000000623fbc8f9cab4187f242ab5cdf062949a81d66c2be17a height=769942 version=0x26278000 log2_work=93.925313 tx=792669265 date='2023-01-02T00:28:38Z' progress=0.999837 cache=2.1MiB(15925txo)
 # UpdateTip: new best=000000000000000000026ef7879a3fd57825a415c2e26ddf028c75f04087be58 height=769943 version=0x20400000 log2_work=93.925325 tx=792671631 date='2023-01-02T00:28:51Z' progress=0.999837 cache=4.0MiB(29419txo)
 # UpdateTip: new best=00000000000000000006a28f25197b1dcc3eeab5d7dbb57b77c45cc38a3fa255 height=769944 version=0x20000000 log2_work=93.925337 tx=792672968 date='2023-01-02T00:35:48Z' progress=0.999838 cache=5.4MiB(41166txo)
@@ -190,9 +190,9 @@ For this example, we can see that electrs has already indexed the entire blockch
 
 ```shell
 $ docker ps | grep electrs
-# 92ebe51900c9   electrs:0.9.12
+# 92ebe51900c9   electrs:0.11.1
 $ docker logs -f 92ebe51900c9
-# Starting electrs 0.9.12 on x86_64 linux with Config { network: Bitcoin, db_path: "/home/electrs/.electrs/db/bitcoin", daemon_dir: "/home/electrs/.bitcoin", daemon_auth: UserPass("electrs", "<sensitive>"), daemon_rpc_addr: 172.18.0.3:8332, daemon_p2p_addr: 172.18.0.3:8333, electrum_rpc_addr: 0.0.0.0:50001, monitoring_addr: 127.0.0.1:4224, wait_duration: 10s, jsonrpc_timeout: 15s, index_batch_size: 10, index_lookup_limit: None, reindex_last_blocks: 0, auto_reindex: true, ignore_mempool: false, sync_once: false, disable_electrum_rpc: false, server_banner: "Welcome to electrs 0.9.12 (Electrum Rust Server)!", signet_magic: 3652501241, args: [] }
+# Starting electrs 0.11.1 on x86_64 linux with Config { network: Bitcoin, db_path: "/home/electrs/.electrs/db/bitcoin", daemon_dir: "/home/electrs/.bitcoin", daemon_auth: UserPass("electrs", "<sensitive>"), daemon_rpc_addr: 172.18.0.3:8332, daemon_p2p_addr: 172.18.0.3:8333, electrum_rpc_addr: 0.0.0.0:50001, args: [] }
 # [2023-01-02T15:45:56.500Z INFO  electrs::server] serving Electrum RPC on 0.0.0.0:50001
 # [2023-01-02T15:45:56.705Z INFO  electrs::db] "/home/electrs/.electrs/db/bitcoin": 163 SST files, 39.804026748 GB, 4.979395287 Grows
 # [2023-01-02T17:17:50.099Z INFO  electrs::chain] chain updated: tip=000000000000000000021f6a20a394c43b89b13034e54ff3150e147a261a3b53, height=769944
@@ -204,29 +204,29 @@ The btc-rpc-explorer configuration file is located in `/mnt/hdd/btcrpcexplorer/b
 
 Run the following command `docker compose up -d btcrpcexplorer` to start the service and check the logs to be sure that the service is running properly.
 
-For this example, we can see that the service has beed started and it's connected to bitcoin (`RPC Connected: ... subversion=/Satoshi:24.0.1`)
+For this example, we can see that the service has been started and it's connected to bitcoin (`RPC Connected: ... subversion=/Satoshi:31.0/`)
 
 ```shell
 $ docker compose up -d btcrpcexplorer
 $ docker ps | grep btcrpcexplorer
-# c8b93a8b9410   btc-rpc-explorer:3.3.0
+# c8b93a8b9410   btcrpcexplorer:3.5.1
 $ docker logs -f c8b93a8b9410
-# > btc-rpc-explorer@3.3.0 start
+# > btc-rpc-explorer@3.5.1 start
 # > node ./bin/www
 
 # 2023-01-02T17:21:33.513Z btcexp:app Searching for config files...
 # 2023-01-02T17:21:33.514Z btcexp:app Config file found at /home/btcrpcexplorer/.config/btc-rpc-explorer.env, loading...
 # 2023-01-02T17:21:33.515Z btcexp:app Config file not found at /etc/btc-rpc-explorer/.env, continuing...
 # 2023-01-02T17:21:33.515Z btcexp:app Config file not found at /opt/btc-rpc-explorer/.env, continuing...
-# 2023-01-02T17:21:34.448Z btcexp:app Default cacheId '3.3.0'
+# 2023-01-02T17:21:34.448Z btcexp:app Default cacheId '3.5.1'
 # 2023-01-02T17:21:34.473Z btcexp:app Enabling view caching (performance will be improved but template edits will not be reflected)
 # 2023-01-02T17:21:34.479Z btcexp:app Environment(development) - Node: v16.19.0, Platform: linux, Versions: {"node":"16.19.0","v8":"9.4.146.26-node.24","uv":"1.43.0","zlib":"1.2.11","brotli":"1.0.9","ares":"1.18.1","modules":"93","nghttp2":"1.47.0","napi":"8","llhttp":"6.0.10","openssl":"1.1.1s+quic","cldr":"41.0","icu":"71.1","tz":"2022f","unicode":"14.0","ngtcp2":"0.8.1","nghttp3":"0.7.0"}
-# 2023-01-02T17:21:34.479Z btcexp:app No sourcecode version available, continuing to use default cacheId '3.3.0'
-# 2023-01-02T17:21:34.479Z btcexp:app Starting BTC RPC Explorer, v3.3.0 at http://172.18.0.5:3002/
+# 2023-01-02T17:21:34.479Z btcexp:app No sourcecode version available, continuing to use default cacheId '3.5.1'
+# 2023-01-02T17:21:34.479Z btcexp:app Starting BTC RPC Explorer, v3.5.1 at http://172.18.0.5:3002/
 # 2023-01-02T17:21:34.479Z btcexp:app Connecting to RPC node at bitcoin:8332
 # 2023-01-02T17:21:34.484Z btcexp:app Verifying RPC connection...
 # 2023-01-02T17:21:34.487Z btcexp:app Loading mining pools config
-# 2023-01-02T17:21:34.515Z btcexp:app RPC Connected: version=240001 subversion=/Satoshi:24.0.1/, parsedVersion(used for RPC versioning)=24.0.1, protocolversion=70016, chain=main, services=[NETWORK, WITNESS, NETWORK_LIMITED]
+# 2023-01-02T17:21:34.515Z btcexp:app RPC Connected: version=310000 subversion=/Satoshi:31.0/, parsedVersion(used for RPC versioning)=31.0, protocolversion=70016, chain=main, services=[NETWORK, WITNESS, NETWORK_LIMITED]
 ```
 
 ### nginx
@@ -245,7 +245,7 @@ Two files `certificate.crt` and `certificate.key` will be generated. It is impor
 
 Finally, run the following command `docker compose up -d nginx` to start the service and check the logs to be sure that the service is running properly.
 
-For this example, we can see that the service has beed started and it's connected to bitcoin.
+For this example, we can see that the service has been started.
 
 ```shell
 $ docker ps | grep nginx
@@ -327,12 +327,13 @@ I2P (Invisible Internet Project) is a decentralized network designed for anonymo
 
 I2P adds extra complexity to node setup and is disabled by default, allowing advanced users to enable it if needed.
 
-If you want to enable it, uncomment the following lines in the I2P service of the `docker-compose` file.
+If you want to try I2P without changing the compose file, start the service with the optional profile:
 
-```conf
-profiles:
-  - disabled
+```shell
+$ docker compose --profile disabled up -d i2p
 ```
+
+If you want I2P to be part of the default stack permanently, remove the `profiles` block from the I2P service in `docker-compose.yml`.
 
 When the service is up and running, follow these steps:
 

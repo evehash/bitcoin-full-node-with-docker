@@ -4,12 +4,18 @@
 
 The short answer is no.
 
-Adding LND increases considerably the complexity of the project and its maintenance. Keep in mind that it requires periodic backups of the channels, watchtowers (your own or from third parties) in case your node goes down, loses internet connection or suffers some kind of attack, and in the meantime someone closes a channel fraudulently... 
+Adding LND considerably increases the complexity of the project and its maintenance. It requires channel backups, liquidity management, watchtowers or other monitoring strategies, and extra operational care if the node goes down or loses connectivity.
 
-So for the time being, it's not on the roadmap.
+For the time being, it is not on the roadmap. This project focuses on a Bitcoin full node, Electrs, BTC RPC Explorer and privacy networks.
 
-## Why debian-slim and not alpine?
+## Why build locally instead of publishing Docker images?
 
-The main problem is that Tor, Bitcoind and Electrs are dynamically linked to glibc. Alpine is based on musl so it's necessary to install additional packages which cause the image size to increase considerably.
+The goal of this repository is to make the node stack auditable from source. Pulling prebuilt images would be more convenient, but it would also move trust to a registry and to whoever built those images.
 
-More info here: https://wiki.alpinelinux.org/wiki/Running_glibc_programs
+The intended workflow is to build locally from upstream source code. Where upstream projects provide signed tags or source signatures, the Dockerfiles verify them during the build.
+
+## Why Alpine for most images?
+
+The current Dockerfiles build static or mostly self-contained binaries on Alpine where practical. This keeps runtime images small while still allowing source verification during the build stage.
+
+Some services may use a different base image when their runtime requirements make it more appropriate. For example, BTC RPC Explorer runs on Node.js and uses the official slim Node image at runtime.

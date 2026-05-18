@@ -2,6 +2,7 @@ FROM alpine:3.23 AS build
 
 ARG BITCOIN_VERSION
 
+# Install build dependencies only in the builder stage.
 RUN apk add --no-cache \
       autoconf \
       automake \
@@ -20,6 +21,7 @@ RUN apk add --no-cache \
 
 WORKDIR /tmp
 
+# Import Bitcoin Core builder keys used to verify release tags.
 RUN mkdir -p /root/.gnupg \
   && chmod 700 /root/.gnupg \
   && curl \
@@ -40,8 +42,10 @@ RUN git clone \
 
 WORKDIR /tmp/bitcoin
 
+# Verify the upstream release before compiling.
 RUN git verify-tag "v${BITCOIN_VERSION}"
 
+# Build only bitcoind for a headless full node; skip wallet, GUI, tests, benchmarks and extra tools.
 RUN case "$(apk --print-arch)" in \
        x86_64)  HOST=x86_64-alpine-linux-musl ;; \
        aarch64) HOST=aarch64-alpine-linux-musl ;; \
@@ -51,7 +55,7 @@ RUN case "$(apk --print-arch)" in \
        *) echo "Unsupported arch: $(apk --print-arch)" >&2; exit 1 ;; \
      esac \
   && cd depends \
-  && make -j"$(nproc)" HOST="$HOST" NO_BDB=1 NO_QT=1 NO_QR=1 NO_SQLITE=1 NO_NATPMP=1 NO_UPNP=1 NO_ZMQ=1 NO_USDT=1 NO_WALLET=1 NO_HARDEN=1 \
+  && make -j"$(nproc)" HOST="$HOST" NO_BDB=1 NO_QT=1 NO_QR=1 NO_SQLITE=1 NO_NATPMP=1 NO_UPNP=1 NO_ZMQ=1 NO_USDT=1 NO_WALLET=1 \
   && cd .. \
   && cmake -B build \
       --toolchain "depends/$HOST/toolchain.cmake" \
@@ -81,6 +85,7 @@ ARG GROUP_ID=1000
 
 COPY --from=build /tmp/bitcoind-bin /usr/local/bin/bitcoind
 
+# Run the daemon as an unprivileged user while preserving host volume group access.
 RUN addgroup -g "${GROUP_ID}" bitcoin \
   && adduser -u "${BITCOIN_USER_ID}" -D -G bitcoin -h /home/bitcoin bitcoin \
   && mkdir -p /home/bitcoin/.bitcoin \

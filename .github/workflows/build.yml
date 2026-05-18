@@ -1,17 +1,46 @@
-name: weekly build
+name: build
+
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
   schedule:
-    - cron: 0 0 * * 1
+    - cron: "0 0 * * 1"
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Validate default compose config
+        run: docker compose --env-file .env.example config
+
+      - name: Validate optional profile compose config
+        run: docker compose --env-file .env.example --profile disabled config
+
       - name: Build default images
         run: docker compose --env-file .env.example build
-      - name: Build disabled images
+
+      - name: Build optional profile images
         run: docker compose --env-file .env.example --profile disabled build
+
+      - name: Smoke test built images
+        run: |
+          set -a
+          . ./.env.example
+          set +a
+
+          docker run --rm "bitcoin:${BITCOIN_VERSION}" --version
+          docker run --rm "tor:${TOR_VERSION}" --version
+          docker run --rm "electrs:${ELECTRS_VERSION}" --version
+          docker run --rm --entrypoint node "btcrpcexplorer:${BTC_RPC_EXPLORER_VERSION}" \
+            -e "const pkg = require('./package.json'); if (!pkg.version) process.exit(1); console.log(pkg.version)"
+          docker run --rm nginx:alpine-slim nginx -v
+
       - name: List images
         run: docker images
