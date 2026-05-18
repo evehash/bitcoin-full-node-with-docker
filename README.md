@@ -9,11 +9,8 @@
 
   <p>
     <a href="https://github.com/reverse-hash/bitcoin-full-node-with-docker/actions/workflows/build.yml">
-      <img alt="Build status" src="https://github.com/reverse-hash/bitcoin-full-node-with-docker/actions/workflows/build.yml/badge.svg">
-    </a>
-    <a href="./LICENSE.txt">
-      <img alt="License: Unlicense" src="https://img.shields.io/badge/license-Unlicense-blue.svg">
-    </a>
+      <img alt="Build status" src="https://github.com/reverse-hash/bitcoin-full-node-with-docker/actions/workflows/build.yml/badge.svg"></a> 
+    <a href="./LICENSE.txt"><img alt="License: Unlicense" src="https://img.shields.io/badge/license-Unlicense-blue.svg"></a>
   </p>
 
   <strong><a href="./GETTING_STARTED.md">Getting started</a></strong>
@@ -32,12 +29,12 @@ The stack is designed for users who want transparent local builds instead of pul
 
 | Service | Purpose | Version | Status |
 | --- | --- | --- | --- |
-| [Tor](https://gitlab.torproject.org/tpo/core/tor/) | Routes Bitcoin P2P traffic through Tor and can host optional onion services. | 0.4.9.8 | ![Tor version status](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/reverse-hash/bitcoin-full-node-with-docker/main/.github/version-status/tor.json) |
-| [Bitcoin Core](https://github.com/bitcoin/bitcoin) | Validates blocks and transactions as a full Bitcoin node. | 31.0 | ![Bitcoin Core version status](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/reverse-hash/bitcoin-full-node-with-docker/main/.github/version-status/bitcoin.json) |
-| [Electrs](https://github.com/romanz/electrs) | Serves Electrum-compatible wallets from your own node. | 0.11.1 | ![Electrs version status](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/reverse-hash/bitcoin-full-node-with-docker/main/.github/version-status/electrs.json) |
-| [BTC RPC Explorer](https://github.com/janoside/btc-rpc-explorer) | Provides a local Bitcoin blockchain explorer backed by your node. | 3.5.1 | ![BTC RPC Explorer version status](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/reverse-hash/bitcoin-full-node-with-docker/main/.github/version-status/btcrpcexplorer.json) |
-| [NGINX](https://github.com/nginxinc/docker-nginx) | Terminates local TLS for BTC RPC Explorer and Electrs. | stable-slim | ![NGINX version status](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/reverse-hash/bitcoin-full-node-with-docker/main/.github/version-status/nginx.json) |
-| [I2P](https://github.com/i2p/i2p.i2p) | Optional additional privacy network for advanced users. | 2.11.0 | ![I2P version status](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/reverse-hash/bitcoin-full-node-with-docker/main/.github/version-status/i2p.json) |
+| [Tor](https://gitlab.torproject.org/tpo/core/tor/) | Routes Bitcoin P2P traffic through Tor and can host optional onion services. | 0.4.9.8 | ![Tor version status](https://img.shields.io/endpoint?url=https%3A%2F%2Fevehash.github.io%2Fbitcoin-full-node-with-docker%2Fversion-status%2Ftor.json) |
+| [Bitcoin Core](https://github.com/bitcoin/bitcoin) | Validates blocks and transactions as a full Bitcoin node. | 31.0 | ![Bitcoin Core version status](https://img.shields.io/endpoint?url=https%3A%2F%2Fevehash.github.io%2Fbitcoin-full-node-with-docker%2Fversion-status%2Fbitcoin.json) |
+| [Electrs](https://github.com/romanz/electrs) | Serves Electrum-compatible wallets from your own node. | 0.11.1 | ![Electrs version status](https://img.shields.io/endpoint?url=https%3A%2F%2Fevehash.github.io%2Fbitcoin-full-node-with-docker%2Fversion-status%2Felectrs.json) |
+| [BTC RPC Explorer](https://github.com/janoside/btc-rpc-explorer) | Provides a local Bitcoin blockchain explorer backed by your node. | 3.5.1 | ![BTC RPC Explorer version status](https://img.shields.io/endpoint?url=https%3A%2F%2Fevehash.github.io%2Fbitcoin-full-node-with-docker%2Fversion-status%2Fbtcrpcexplorer.json) |
+| [NGINX](https://github.com/nginxinc/docker-nginx) | Terminates local TLS for BTC RPC Explorer and Electrs. | stable-slim | ![NGINX version status](https://img.shields.io/endpoint?url=https%3A%2F%2Fevehash.github.io%2Fbitcoin-full-node-with-docker%2Fversion-status%2Fnginx.json) |
+| [I2P](https://github.com/i2p/i2p.i2p) | Optional additional privacy network for advanced users. | 2.11.0 | ![I2P version status](https://img.shields.io/endpoint?url=https%3A%2F%2Fevehash.github.io%2Fbitcoin-full-node-with-docker%2Fversion-status%2Fi2p.json) |
 
 Version status badges are generated weekly. `current` means the pinned version matches the latest stable upstream tag; `new release` means a newer upstream tag is available for review.
 
