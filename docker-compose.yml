@@ -17,9 +17,9 @@ services:
       - ${TOR_DATA}:/home/tor
     logging: *default-logging
     restart: on-failure
-    stop_grace_period: 1m
+    stop_grace_period: 2m
     healthcheck:
-      test: ["CMD", "nc", "-z", "tor", "9050"]
+      test: ["CMD", "nc", "-z", "127.0.0.1", "9050"]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -40,13 +40,21 @@ services:
       - ${I2P_DATA}:/i2p/.i2p
     logging: *default-logging
     restart: on-failure
-    stop_grace_period: 1m
+    stop_grace_period: 2m
+    healthcheck:
+      test: ["CMD", "nc", "-z", "127.0.0.1", "7656"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 2m
   bitcoin:
     image: bitcoin:$BITCOIN_VERSION
     depends_on:
       tor:
         condition: service_healthy
-      # - i2p
+      # Enable this only when the i2p service is part of the active compose profile.
+      # i2p:
+      #   condition: service_healthy
     build:
       context: ./bitcoin
       args:
@@ -58,10 +66,17 @@ services:
     logging: *default-logging
     restart: unless-stopped
     stop_grace_period: 5m
+    healthcheck:
+      test: ["CMD", "bitcoin-healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 5m
   electrs:
     image: electrs:${ELECTRS_VERSION}
     depends_on:
-      - bitcoin
+      bitcoin:
+        condition: service_healthy
     build:
       context: ./electrs
       args:
@@ -73,12 +88,20 @@ services:
       - ${ELECTRS_DATA}:/home/electrs/.electrs
     logging: *default-logging
     restart: on-failure
-    stop_grace_period: 2m
+    stop_grace_period: 3m
+    healthcheck:
+      test: ["CMD", "nc", "-z", "127.0.0.1", "50001"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 2m
   btcrpcexplorer:
     image: btcrpcexplorer:${BTC_RPC_EXPLORER_VERSION}
     depends_on:
-      - bitcoin
-      - electrs
+      bitcoin:
+        condition: service_healthy
+      electrs:
+        condition: service_healthy
     build:
       context: ./btcrpcexplorer
       args:
@@ -102,3 +125,9 @@ services:
       - ${NGINX_DATA}:/etc/nginx
     logging: *default-logging
     restart: on-failure
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s

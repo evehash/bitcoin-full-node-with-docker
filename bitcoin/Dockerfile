@@ -45,7 +45,7 @@ WORKDIR /tmp/bitcoin
 # Verify the upstream release before compiling.
 RUN git verify-tag "v${BITCOIN_VERSION}"
 
-# Build only bitcoind for a headless full node; skip wallet, GUI, tests, benchmarks and extra tools.
+# Build bitcoind and bitcoin-cli for a headless full node; skip wallet, GUI, tests, benchmarks and extra tools.
 RUN case "$(apk --print-arch)" in \
        x86_64)  HOST=x86_64-alpine-linux-musl ;; \
        aarch64) HOST=aarch64-alpine-linux-musl ;; \
@@ -62,7 +62,7 @@ RUN case "$(apk --print-arch)" in \
       -DAPPEND_LDFLAGS="-static -static-libgcc -static-libstdc++ -s" \
       -DBUILD_BENCH=OFF \
       -DBUILD_BITCOIN_BIN=OFF \
-      -DBUILD_CLI=OFF \
+      -DBUILD_CLI=ON \
       -DBUILD_FUZZ_BINARY=OFF \
       -DBUILD_TESTS=OFF \
       -DBUILD_TX=OFF \
@@ -74,8 +74,9 @@ RUN case "$(apk --print-arch)" in \
       -DREDUCE_EXPORTS=ON \
       -DWITH_ZMQ=OFF \
   && cmake --build build -j"$(nproc)" \
-  && strip build/bin/bitcoind \
-  && cp build/bin/bitcoind /tmp/bitcoind-bin
+  && strip build/bin/bitcoind build/bin/bitcoin-cli \
+  && cp build/bin/bitcoind /tmp/bitcoind-bin \
+  && cp build/bin/bitcoin-cli /tmp/bitcoin-cli-bin
 
 
 FROM alpine:3.23
@@ -84,12 +85,15 @@ ARG BITCOIN_USER_ID=1000
 ARG GROUP_ID=1000
 
 COPY --from=build /tmp/bitcoind-bin /usr/local/bin/bitcoind
+COPY --from=build /tmp/bitcoin-cli-bin /usr/local/bin/bitcoin-cli
+COPY healthcheck.sh /usr/local/bin/bitcoin-healthcheck
 
 # Run the daemon as an unprivileged user while preserving host volume group access.
 RUN addgroup -g "${GROUP_ID}" bitcoin \
   && adduser -u "${BITCOIN_USER_ID}" -D -G bitcoin -h /home/bitcoin bitcoin \
   && mkdir -p /home/bitcoin/.bitcoin \
-  && chown -R bitcoin:bitcoin /home/bitcoin
+  && chown -R bitcoin:bitcoin /home/bitcoin \
+  && chmod +x /usr/local/bin/bitcoin-healthcheck
 
 USER bitcoin
 WORKDIR /home/bitcoin

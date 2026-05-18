@@ -123,8 +123,6 @@ $ docker logs -f 06a96296854a
 # [notice] Bootstrapped 100% (done): Done
 ```
 
-
-
 ### bitcoin
 
 The bitcoin configuration file is located in `/mnt/hdd/bitcoin/bitcoin.conf`. The default parameters are enough, except for one that depends on the memory of your local machine and the default password for communication between services, which you should generate yourself for security reasons.
