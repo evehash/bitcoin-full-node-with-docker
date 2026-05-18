@@ -1,4 +1,4 @@
-name: Version status
+name: version status
 
 on:
   workflow_dispatch:
@@ -65,7 +65,7 @@ jobs:
             cat > "$OUTPUT_DIR/${id}.json" <<EOF
           {
             "schemaVersion": 1,
-            "label": "${id}",
+            "label": "",
             "message": "${message}",
             "color": "${color}"
           }

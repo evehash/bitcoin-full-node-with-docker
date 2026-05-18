@@ -1,7 +1,7 @@
 <div align="center">
-  <h1>Bitcoin Full Node with Docker, Tor, Electrs and BTC RPC Explorer</h1>
+  <h1>Bitcoin full node with Docker</h1>
 
-  <img alt="Bitcoin full node with Docker logo" src="./.doc/readme/logo.png" width="480"/>
+  <img alt="Bitcoin full node with Docker logo" src="./.doc/readme/logo.png" width="360"/>
 
   <p>
     <strong>Self-host a privacy-focused Bitcoin full node with local Docker builds.</strong>
@@ -25,7 +25,7 @@ This project deploys a Docker Compose stack for running a self-hosted Bitcoin fu
 
 The stack is designed for users who want transparent local builds instead of pulling prebuilt images from a registry. Core services are built from upstream source code and the build process verifies signed tags or pins trusted source references where upstream signing is not available.
 
-## What You Get
+## What you get
 
 | Service | Purpose | Version | Status |
 | --- | --- | --- | --- |
@@ -38,7 +38,7 @@ The stack is designed for users who want transparent local builds instead of pul
 
 Version status badges are generated weekly. `current` means the pinned version matches the latest stable upstream tag; `new release` means a newer upstream tag is available for review.
 
-## Quick Start
+## Quick start
 
 Read [Getting started](./GETTING_STARTED.md) before running the stack. The first setup needs host volume permissions, RPC credentials and enough disk space for Bitcoin Core plus Electrs indexes.
 
@@ -95,7 +95,7 @@ Persistent data lives under `volumes/` by default:
 - `volumes/nginx`: TLS certificates and reverse proxy configuration.
 - `volumes/tor` and `volumes/i2p`: privacy network state.
 
-## Local Builds And Source Verification
+## Local builds and source verification
 
 The project intentionally does not publish Docker Hub or GHCR images. Building locally keeps the deployment auditable and aligned with the goal of compiling the node stack from upstream sources.
 
@@ -111,7 +111,7 @@ Current verification model:
 
 Use a Linux host with Docker Compose, reliable bandwidth and storage sized for a non-pruned Bitcoin Core node plus Electrs data. Bitcoin.org currently lists 750 GB as the default disk requirement for Bitcoin Core and a one-time 740 GB initial download. This stack also stores Electrs indexes, so plan for more than Bitcoin Core alone and leave growth headroom.
 
-## Version Policy
+## Version policy
 
 Versions in `.env.example` are the versions tested by this repository. They are not automatically the latest upstream releases. When updating a component, rebuild it locally, verify the corresponding Dockerfile and open a focused pull request if the build process needs changes.
 
@@ -123,7 +123,7 @@ See [Updating services](./UPDATING_SERVICES.md) for the manual upgrade workflow.
 - [Updating services](./UPDATING_SERVICES.md)
 - [FAQ](./FAQ.md)
 
-## Special Thanks
+## Special thanks
 
 - Kudos to Emmanuel Rosa for an initial [list of nodes for Tor](https://github.com/emmanuelrosa/bitcoin-onion-nodes).
 - Kudos to [cozybear-dev](https://github.com/cozybear-dev) for multi-arch Tor proxy work and documentation/security improvements.
